@@ -1,45 +1,83 @@
-import java.util.PriorityQueue;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Huffman {
-    public static HuffmanResult buildHuffmanTree(Map<Character, Integer> freqMap) {
-        PriorityQueue<HuffmanNode> pq = new PriorityQueue<>((a, b) -> a.frequency - b.frequency);
+    private static List<HuffmanNode> nodes = new ArrayList<>();
+    private static HuffmanNode root; // Raiz da árvore
 
-        // Adicione todos os caracteres e suas frequências à fila de prioridade
+    public static void calculateFrequencies(String text) {
+        Map<Character, Integer> freqMap = new HashMap<>();
+        int order = 0; // Índice de ordem de inserção
+
+        for (char c : text.toCharArray()) {
+            freqMap.put(c, freqMap.getOrDefault(c, 0) + 1);
+        }
+
         for (Map.Entry<Character, Integer> entry : freqMap.entrySet()) {
-            pq.add(new HuffmanNode(entry.getKey(), entry.getValue()));
+            nodes.add(new HuffmanNode(entry.getKey(), entry.getValue(), order++));
         }
-
-        // Construa a árvore de Huffman
-        while (pq.size() > 1) {
-            HuffmanNode left = pq.poll();
-            HuffmanNode right = pq.poll();
-            int sum = left.frequency + right.frequency;
-            pq.add(new HuffmanNode(sum, left, right));
-        }
-
-        // O último nó na fila é a raiz da árvore de Huffman
-        HuffmanNode root = pq.poll();
-
-        // Gera os códigos de Huffman a partir da árvore
-        Map<Character, String> huffmanCodeMap = new HashMap<>();
-        generateCodes(root, "", huffmanCodeMap);
-
-        // Retorna o resultado com o mapa de códigos e a raiz da árvore
-        return new HuffmanResult(huffmanCodeMap, root);
     }
 
-    private static void generateCodes(HuffmanNode node, String code, Map<Character, String> huffmanCodeMap) {
+    public static HuffmanNode buildHuffmanTree() {
+        while (nodes.size() > 1) {
+            // Ordena por frequência e, em caso de empate, pela ordem de inserção
+            nodes.sort((a, b) -> {
+                if (a.frequency != b.frequency) {
+                    return a.frequency - b.frequency;
+                } else {
+                    return Character.compare(a.charValue, b.charValue);
+                }
+            });
+
+            HuffmanNode left = nodes.remove(0);
+            HuffmanNode right = nodes.remove(0);
+
+            HuffmanNode merged = new HuffmanNode(left.frequency + right.frequency, left, right);
+            nodes.add(merged);
+        }
+        root = nodes.get(0);
+        return root;
+    }
+
+    public static Map<Character, String> huffmanEncoding(String text) {
+        nodes.clear();
+        calculateFrequencies(text);
+        HuffmanNode root = buildHuffmanTree();
+        Map<Character, String> codes = new HashMap<>();
+        generateHuffmanCodes(root, "", codes);
+        return codes;
+    }
+
+    // Método para gerar os códigos de Huffman
+    public static void generateHuffmanCodes(HuffmanNode node, String currentCode, Map<Character, String> codes) {
         if (node == null) return;
 
-        // Se for uma folha, adicione o código ao mapa
+        // Se for um nó folha, adicione o código ao mapa
         if (node.left == null && node.right == null) {
-            huffmanCodeMap.put(node.c, code);
+            codes.put(node.charValue, currentCode);
         }
 
-        // Percorra os filhos esquerdo (0) e direito (1)
-        generateCodes(node.left, code + "0", huffmanCodeMap);
-        generateCodes(node.right, code + "1", huffmanCodeMap);
+        // Recursão para os filhos esquerdo e direito
+        generateHuffmanCodes(node.left, currentCode + '0', codes);
+        generateHuffmanCodes(node.right, currentCode + '1', codes);
+    }
+
+    public static HuffmanNode getRoot() {
+        return root;
+    }
+
+    public static void printTree(HuffmanNode node, String prefix) {
+        if (node == null) return;
+
+        if (node.left == null && node.right == null) {
+            System.out.println(prefix + "Char: '" + node.charValue + "', Freq: " + node.frequency);
+        } else {
+            System.out.println(prefix + "Freq: " + node.frequency);
+        }
+
+        printTree(node.left, prefix + "0 ");
+        printTree(node.right, prefix + "1 ");
     }
 }
