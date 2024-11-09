@@ -1,3 +1,4 @@
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -6,11 +7,25 @@ public class HuffmanCoding {
     public static void main(String[] args) {
         String text = "Julio";
 
-        // Gere o mapa de códigos de Huffman e a raiz da árvore
-        Map<Character, String> huffmanCodeMap = Huffman.huffmanEncoding(text);
-        HuffmanNode root = Huffman.getRoot(); // Método para obter a raiz da árvore a partir da classe Huffman
+        // Exibe os caracteres em UTF-8 e o tamanho original em bits
+        System.out.println("Original Characteres (representação em UTF8):");
+        int originalBits = 0;
+        for (char c : text.toCharArray()) {
+            byte[] utf8Bytes = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
+            originalBits += utf8Bytes.length * 8; // Cada byte tem 8 bits
+            System.out.print("Character: '" + c + "', UTF-8 Binario: ");
+            for (byte b : utf8Bytes) {
+                System.out.print(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0') + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("Tamanho original (bits): " + originalBits);
 
-        System.out.println("Huffman Codes: " + huffmanCodeMap);
+        // Gere o mapa de códigos de Huffman
+        Map<Character, String> huffmanCodeMap = Huffman.huffmanEncoding(text);
+        HuffmanNode root = Huffman.getRoot();
+
+        System.out.println("\nHuffman Codes: " + huffmanCodeMap);
 
         // Codifique o texto
         StringBuilder encodedText = new StringBuilder();
@@ -19,11 +34,17 @@ public class HuffmanCoding {
         }
         System.out.println("Encoded Text: " + encodedText.toString());
 
+        // Calcule o tamanho do texto codificado em bits
+        int compressedBits = encodedText.length();
+        System.out.println("Tamanho comprimid(bits): " + compressedBits);
+
+        // Calcule a taxa de compressão
+        double compressionRate = (1 - ((double) compressedBits / originalBits)) * 100;
+        System.out.printf("Taxa de compressao de : %.2f%%\n", compressionRate);
+
         // Decodifique o texto (usando a árvore)
         String decodedText = decode(encodedText.toString(), root);
-        System.out.println("Decoded Text: " + decodedText);
-
-
+        System.out.println("\nDecoded Text: " + decodedText);
     }
 
     public static String decode(String encodedText, HuffmanNode root) {
