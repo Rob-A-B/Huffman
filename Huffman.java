@@ -4,80 +4,74 @@ import java.util.List;
 import java.util.Map;
 
 public class Huffman {
-    private static List<HuffmanNode> nodes = new ArrayList<>();
-    private static HuffmanNode root; // Raiz da árvore
+    static List<HuffmanNode> nodes = new ArrayList<>();
+    private static HuffmanNode root; // Adiciona um campo estático para armazenar a raiz da árvore
+    static int orderCounter = 0; // Contador para a ordem de aparição
 
     public static void calculateFrequencies(String text) {
-        Map<Character, Integer> freqMap = new HashMap<>();
-        int order = 0; // Índice de ordem de inserção
-
-        for (char c : text.toCharArray()) {
-            freqMap.put(c, freqMap.getOrDefault(c, 0) + 1);
+        Map<Character, Integer> frequencies = new HashMap<>();
+        for (char charValue : text.toCharArray()) {
+            if (!frequencies.containsKey(charValue)) {
+                frequencies.put(charValue, 0);
+                nodes.add(new HuffmanNode(charValue, 0, orderCounter++)); // Adiciona a ordem de aparição
+            }
+            frequencies.put(charValue, frequencies.get(charValue) + 1);
         }
 
-        for (Map.Entry<Character, Integer> entry : freqMap.entrySet()) {
-            nodes.add(new HuffmanNode(entry.getKey(), entry.getValue(), order++));
+        for (HuffmanNode node : nodes) {
+            node.frequency = frequencies.get(node.charValue);
         }
+    }
+
+    // Método para ordenar a lista de nós
+    public static void sortNodes() {
+        nodes.sort((a, b) -> {
+            if (a.frequency != b.frequency) {
+                return a.frequency - b.frequency; // Ordena por frequência
+            } else {
+                return a.order - b.order; // Desempata pela ordem de aparição
+            }
+        });
     }
 
     public static HuffmanNode buildHuffmanTree() {
         while (nodes.size() > 1) {
-            // Ordena por frequência e, em caso de empate, pela ordem de inserção
-            nodes.sort((a, b) -> {
-                if (a.frequency != b.frequency) {
-                    return a.frequency - b.frequency;
-                } else {
-                    return Character.compare(a.charValue, b.charValue);
-                }
-            });
-
+            sortNodes(); // Chama o método de ordenação separado
             HuffmanNode left = nodes.remove(0);
             HuffmanNode right = nodes.remove(0);
 
             HuffmanNode merged = new HuffmanNode(left.frequency + right.frequency, left, right);
             nodes.add(merged);
         }
-        root = nodes.get(0);
+        root = nodes.get(0); // Atribui a raiz da árvore à variável estática
         return root;
+    }
+
+    public static void generateHuffmanCodes(HuffmanNode node, String currentCode, Map<Character, String> codes) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.charValue != '\0') {
+            codes.put(node.charValue, currentCode);
+        }
+
+        generateHuffmanCodes(node.left, currentCode + '0', codes);
+        generateHuffmanCodes(node.right, currentCode + '1', codes);
     }
 
     public static Map<Character, String> huffmanEncoding(String text) {
         nodes.clear();
+        orderCounter = 0; // Reseta o contador de ordem para cada nova palavra
         calculateFrequencies(text);
-        HuffmanNode root = buildHuffmanTree();
+        buildHuffmanTree(); // Chama o método para construir a árvore
         Map<Character, String> codes = new HashMap<>();
         generateHuffmanCodes(root, "", codes);
         return codes;
     }
 
-    // Método para gerar os códigos de Huffman
-    public static void generateHuffmanCodes(HuffmanNode node, String currentCode, Map<Character, String> codes) {
-        if (node == null) return;
-
-        // Se for um nó folha, adicione o código ao mapa
-        if (node.left == null && node.right == null) {
-            codes.put(node.charValue, currentCode);
-        }
-
-        // Recursão para os filhos esquerdo e direito
-        generateHuffmanCodes(node.left, currentCode + '0', codes);
-        generateHuffmanCodes(node.right, currentCode + '1', codes);
-    }
-
+    // Método para retornar a raiz da árvore
     public static HuffmanNode getRoot() {
         return root;
-    }
-
-    public static void printTree(HuffmanNode node, String prefix) {
-        if (node == null) return;
-
-        if (node.left == null && node.right == null) {
-            System.out.println(prefix + "Char: '" + node.charValue + "', Freq: " + node.frequency);
-        } else {
-            System.out.println(prefix + "Freq: " + node.frequency);
-        }
-
-        printTree(node.left, prefix + "0 ");
-        printTree(node.right, prefix + "1 ");
     }
 }

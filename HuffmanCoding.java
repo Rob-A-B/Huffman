@@ -11,7 +11,7 @@ public class HuffmanCoding {
         String text = scanner.nextLine(); // Lê a palavra de entrada do usuário
 
         // Exibe os caracteres em UTF-8 e o tamanho original em bits
-        System.out.println("\nOriginal Characteres (representação em UTF8):");
+        System.out.println("\nOriginal Characters (representação em UTF8):");
         int originalBits = 0;
         for (char c : text.toCharArray()) {
             byte[] utf8Bytes = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
@@ -24,7 +24,7 @@ public class HuffmanCoding {
         }
         System.out.println("Tamanho original (bits): " + originalBits);
 
-        // Gere o mapa de códigos de Huffman
+        // Gere o mapa de códigos de Huffman usando a classe Huffman
         Map<Character, String> huffmanCodeMap = Huffman.huffmanEncoding(text);
         HuffmanNode root = Huffman.getRoot();
 
@@ -63,4 +63,4 @@ public class HuffmanCoding {
         }
         return decodedText.toString();
     }
-}
+} // Adicionei a chave de fechamento para completar a classe
