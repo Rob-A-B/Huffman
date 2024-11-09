@@ -1,14 +1,17 @@
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Scanner; // Importa Scanner para ler a entrada do usuário
 
 public class HuffmanCoding {
 
     public static void main(String[] args) {
-        String text = "Julio";
+        Scanner scanner = new Scanner(System.in); // Cria um Scanner para ler a entrada do usuário
+        System.out.print("Digite uma palavra para codificar com Huffman: ");
+        String text = scanner.nextLine(); // Lê a palavra de entrada do usuário
 
         // Exibe os caracteres em UTF-8 e o tamanho original em bits
-        System.out.println("Original Characteres (representação em UTF8):");
+        System.out.println("\nOriginal Characteres (representação em UTF8):");
         int originalBits = 0;
         for (char c : text.toCharArray()) {
             byte[] utf8Bytes = String.valueOf(c).getBytes(StandardCharsets.UTF_8);
@@ -36,11 +39,11 @@ public class HuffmanCoding {
 
         // Calcule o tamanho do texto codificado em bits
         int compressedBits = encodedText.length();
-        System.out.println("Tamanho comprimid(bits): " + compressedBits);
+        System.out.println("Tamanho comprimido (bits): " + compressedBits);
 
         // Calcule a taxa de compressão
         double compressionRate = (1 - ((double) compressedBits / originalBits)) * 100;
-        System.out.printf("Taxa de compressao de : %.2f%%\n", compressionRate);
+        System.out.printf("Taxa de compressão de: %.2f%%\n", compressionRate);
 
         // Decodifique o texto (usando a árvore)
         String decodedText = decode(encodedText.toString(), root);
