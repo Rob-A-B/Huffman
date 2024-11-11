@@ -36,14 +36,14 @@ public class Huffman {
 
     public static HuffmanNode buildHuffmanTree() {
         while (nodes.size() > 1) {
-            sortNodes(); // Chama o método de ordenação separado
+            sortNodes(); // Chama o método de ordenação 
             HuffmanNode left = nodes.remove(0);
             HuffmanNode right = nodes.remove(0);
 
             HuffmanNode merged = new HuffmanNode(left.frequency + right.frequency, left, right);
             nodes.add(merged);
         }
-        root = nodes.get(0); // Atribui a raiz da árvore à variável estática
+        root = nodes.get(0); // Atribui a raiz 
         return root;
     }
 
